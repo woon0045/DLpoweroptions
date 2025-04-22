@@ -40,7 +40,7 @@ if len(financial_parameters["rates"])!=len(financial_parameters["mus"]) or len(f
 ml_parameters = {
     'M': 256,                    # Batch size
     'hidden_dim': 512,           # Number of neurons at each LSTM layer
-    'R': 80,                    # Number of time-steps
+    'R': 160,                    # Number of time-steps
     'epochs': 7000,                 # Number of epochs (training iterations)
     'learning_rate': 0.0005,     # Learning rate
     'eval_size': 10000            # Size of the evaluation set
