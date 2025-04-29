@@ -1,5 +1,17 @@
-#######################################
-#Here you can set desired financial and machine learning parameters in dictionaries
+import torch
+import os
+import numpy as np
+from datetime import datetime
+
+import Plots
+import DataGenerator
+import DeepSolver
+
+import importlib
+importlib.reload(DeepSolver)
+importlib.reload(DataGenerator)
+importlib.reload(Plots)
+
 #######################################
 # Financial model parameters
 
@@ -12,9 +24,9 @@ financial_parameters = {
     'K': 0.5,                  # Strike price
     'p': 1.1,                  # Power option exponent
     'rates': [3.0, 5.0, 2.0],            # Rates for Poisson process
-    'mus': [-0.1, -0.1, -0.05],          # Mean log-normal parameters
-    'sigmas': [0.05, 0.02, 0.01],        # Standard deviation log-normal parameters
-    'MC_sample_size': 5000,    # Sample size for MC
+    'mus': [-0.1, -0.1, -0.05],             # Mean log-normal parameters
+    'sigmas': [0.05, 0.02, 0.01],          # Standard deviation log-normal parameters
+    'MC_sample_size': 5000,   # Sample size for MC
     'MC_R': 3000               # Number of time steps for MC
 }
 if len(financial_parameters["rates"])!=len(financial_parameters["mus"]) or \
@@ -34,11 +46,6 @@ ml_parameters = {
 }
 
 #######################################
-
-#Once parameters are set run this file
-
-
-#######################################
 #Creating paths and folders
 #######################################
 
@@ -46,9 +53,6 @@ market_name = "Merton"
 
 current_datetime = datetime.now()
 formatted_datetime = current_datetime.strftime("%Y_%m_%d_%H_%M")
-
-#formatted_datetime = "2023_11_30_17_50"
-
 market_path = market_name+"/"+ formatted_datetime +"/"
 
 if not os.path.exists(market_path):
@@ -61,7 +65,6 @@ if not os.path.exists(graph_path):
 model_path = market_path  + "Model/"
 if not os.path.exists(model_path):
     os.makedirs(model_path)
-
 
 ########################################
 # Merton class
@@ -151,19 +154,10 @@ class Merton():
         # Generate Radon-Nykodin derivative Z realizations
         G = self.G()
         dN_Z = DataGenerator.gen_compound_poisson(R, sample_size, self.dim_N, G*jumps, jump_times)
-
         Z_T = torch.exp((-0.5 * (G ** 2) * torch.inner(volatility_t, volatility_t) -
                          G * torch.sum(compensator, dim=0, keepdim=True)) * self.T + \
                         G * torch.matmul(B_T, self.volatility) + \
                         torch.sum(torch.sum(torch.log(1 + dN_Z), dim=-1, keepdim=True), dim=0))
-
-        dN_Z2 = DataGenerator.gen_compound_poisson(R, sample_size, self.dim_N, torch.log(1+G * jumps), jump_times)
-
-        Z_T2 = torch.exp((-0.5 * (G ** 2) * torch.inner(volatility_t, volatility_t) -
-                         G * torch.sum(compensator, dim=0, keepdim=True)) * self.T + \
-                        G * torch.matmul(B_T, self.volatility) + \
-                        torch.sum(torch.sum(torch.log(dN_Z2), dim=-1, keepdim=True), dim=0))
-
         return torch.mean(F * Z_T)
 
     def G(self):
@@ -176,7 +170,6 @@ class Merton():
         # moment of log-normal distribution
         G = - self.drift / (torch.inner(volatility_t, volatility_t) + torch.inner(ln_m2, rates_t))
         return G
-
 
 #################################################
 # Training
@@ -215,9 +208,7 @@ with torch.no_grad():
     evaluator = DeepSolver.HedgeEvaluator(net_eval, fin_model)
     evaluator.eval()
 
-
 # Make a text file with financial an ML information, training time and evaluated loss
-
 with open(market_path + 'Info.txt', 'w') as file:
     # Write financial_data to the file
     file.write("Financial parameters:\n")
@@ -244,7 +235,6 @@ with open(market_path + 'Info.txt', 'w') as file:
     file.write("\n---\n\n")
     file.write("Training time: " + str(solver.time) + " min")
 
-
 with open(market_path + 'Info.txt', 'r') as file:
     content = file.read()
 
@@ -252,7 +242,6 @@ print(content)
 
 #######################################################################################################
 #Make and save plots
-
 ploter = Plots.Plots(fin_model, solver, evaluator, graph_path)
 
 save = True #Whether you want to save the graphs
