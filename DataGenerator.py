@@ -113,11 +113,3 @@ def gen_compensator_ln(rates,mus,sigmas):
     mus = torch.tensor(mus).float()
     sigmas = torch.tensor(sigmas).float()
     return rates * (torch.exp(mus + 0.5*sigmas**2)-1)
-
-#Double exponential distribution
-def gen_compensator_de(rates,etas1,etas2,ps):
-    rates = torch.tensor(rates).float()
-    etas1 = torch.tensor(etas1).float()
-    etas2 = torch.tensor(etas2).float()
-    ps = torch.tensor(ps).float()
-    return rates * (ps*etas1/(etas1 -1) + (1-ps)*etas2/(etas2+1) - 1)
