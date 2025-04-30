@@ -26,7 +26,7 @@ financial_parameters = {
     'rates': [3.0, 5.0, 2.0],            # Rates for Poisson process
     'mus': [-0.1, -0.1, -0.05],          # Mean log-normal parameters
     'sigmas': [0.05, 0.02, 0.01],        # Standard deviation log-normal parameters
-    'MC_sample_size': 5000,   # Sample size for MC
+    'MC_sample_size': 5000,    # Sample size for MC
     'MC_R': 3000               # Number of time steps for MC
 }
 if len(financial_parameters["rates"])!=len(financial_parameters["mus"]) or len(financial_parameters["rates"])!=len(financial_parameters["sigmas"]):
@@ -39,9 +39,9 @@ ml_parameters = {
     'M': 256,                    # Batch size
     'hidden_dim': 512,           # Number of neurons at each LSTM layer
     'R': 160,                    # Number of time-steps
-    'epochs': 8000,                 # Number of epochs (training iterations)
+    'epochs': 8000,              # Number of epochs (training iterations)
     'learning_rate': 0.0005,     # Learning rate
-    'eval_size': 10000            # Size of the evaluation set
+    'eval_size': 10000           # Size of the evaluation set
 }
 
 #######################################
@@ -67,7 +67,7 @@ if not os.path.exists(model_path):
     os.makedirs(model_path)
 
 ########################################
-#Merton class
+# Mixed Merton class
 #######################################
 class MixedMerton():
     def __init__(self,market_name,T,drift,volatility,s0,r,rates,mus,sigmas,K,p,R, MC_sample_size, MC_R):
