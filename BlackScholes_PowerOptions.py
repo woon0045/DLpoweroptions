@@ -11,10 +11,6 @@ import importlib
 importlib.reload(DeepSolver)
 importlib.reload(Plots)
 
-#test by p=1.1
-
-#######################################
-#Here you can set desired financial and machine learning parameters in dictionaries
 #######################################
 # Financial model parameters
 
@@ -25,7 +21,7 @@ financial_parameters = {
     's0': 1.0,                 # Spot price
     'r': 0,                    # Interest rate
     'K': 0.5,                  # Strike price
-    'p': 1.1
+    'p': 1.1                   # power exponent
 }
 
 #######################################
@@ -35,15 +31,10 @@ ml_parameters = {
     'M': 256,                    # Batch size
     'hidden_dim': 512,           # Number of neurons at each LSTM layer
     'R': 160,                    # Number of time-steps
-    'epochs': 8000,                 # Number of epochs (training iterations)
+    'epochs': 8000,              # Number of epochs (training iterations)
     'learning_rate': 0.0005,     # Learning rate
-    'eval_size': 10000            # Size of the evaluation set
+    'eval_size': 10000           # Size of the evaluation set
 }
-
-#######################################
-
-#Once parameters are set run this file
-
 
 #######################################
 #Creating paths and folders
@@ -51,13 +42,8 @@ ml_parameters = {
 
 market_name = "BlackScholes"
 
-
 current_datetime = datetime.now()
-
 formatted_datetime = current_datetime.strftime("%Y_%m_%d_%H_%M")
-
-#Here you can set the name of the folder manually. Used for loading models
-#formatted_datetime = "2025_01_01_01_17"
 
 market_path = market_name+"/"+ formatted_datetime +"/"
 
@@ -71,7 +57,6 @@ if not os.path.exists(graph_path):
 model_path = market_path  + "Model/"
 if not os.path.exists(model_path):
     os.makedirs(model_path)
-
 
 ########################################
 #Black-Scholes class
@@ -90,7 +75,6 @@ class BlackScholes():
         self.R = R
         self.dt = T/R
         self.initial = self.black_scholes_price()
-
 
     #Computes new instance of wealth according to the update rule prescribed by Euler-Maruyama scheme
     def new_wealth_instance(self,x, control, dB, i):
@@ -152,9 +136,7 @@ class BlackScholes():
                 stock[i + 1, :] = torch.exp(s_log)
                 stock_log[i+1,:] = s_log
                 wealth_log[i+1,:] = x_log
-
         return wealth, stock, portfolio
-
 
 #################################################
 #Training
@@ -172,13 +154,10 @@ net = DeepSolver.DeepNet(ml_parameters["R"],ml_parameters["hidden_dim"],ml_param
 solver = DeepSolver.HedgeSolver(net,ml_parameters["learning_rate"],ml_parameters["epochs"])
 solver.train()
 
-
-
 #Save model weights, losses, and initial values
 torch.save(solver.best_state_dict, model_path + "weights")
 np.save(model_path+"losses", solver.losses)
 np.save(model_path + "initials", solver.initials)
-
 
 ###################################################
 #Evaluation
@@ -194,10 +173,7 @@ with torch.no_grad():
     evaluator = DeepSolver.HedgeEvaluator(net_eval, fin_model)
     evaluator.eval()
 
-
-
 # Make a text file with financial an ML information, training time and evaluated loss
-
 with open(market_path + 'Info.txt', 'w') as file:
     # Write financial_data to the file
     file.write("Financial parameters:\n")
@@ -231,7 +207,6 @@ with open(market_path + 'Info.txt', 'r') as file:
     content = file.read()
 
 print(content)
-
 
 #######################################################################################################
 #Make and save plots
