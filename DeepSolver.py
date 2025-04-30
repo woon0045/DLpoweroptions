@@ -4,7 +4,6 @@ import torch.nn as nn
 import time
 import numpy as np
 import math
-import importlib
 
 import DataGenerator
 
@@ -26,7 +25,7 @@ class DeepNet(nn.ModuleList):
         #Initialize network layers
         # first layer lstm cell
         self.lstm_1 = nn.LSTMCell(input_size=self.dimension, hidden_size=self.hidden_dim)
-        #second layer lstm cell
+        # second layer lstm cell
         self.lstm_2 = nn.LSTMCell(input_size=self.hidden_dim, hidden_size=self.hidden_dim)
         # fully connected layer to connect the output of the LSTM cell to the output
         self.fc = nn.Linear(in_features=self.hidden_dim, out_features=self.dimension)
@@ -61,16 +60,6 @@ class DeepNet(nn.ModuleList):
             dN = DataGenerator.gen_compound_poisson(self.sequence_len, self.batch_size, self.fin_model.dim_N,
                                                     jumps, jump_times)
             compensator = DataGenerator.gen_compensator_ln(self.fin_model.rates, self.fin_model.mus, self.fin_model.sigmas)
-
-        if self.fin_model.name == "DoubleExponential":
-            jumps = DataGenerator.gen_jumps_de(self.sequence_len,self.batch_size,self.fin_model.eta1s,
-                                               self.fin_model.eta2s, self.fin_model.probs)
-            jump_times = DataGenerator.gen_jump_times(self.sequence_len, self.batch_size,
-                                                      self.fin_model.rates, self.fin_model.T)
-            dN = DataGenerator.gen_compound_poisson(self.sequence_len, self.batch_size, self.fin_model.dim_N,
-                                           jumps, jump_times)
-            compensator = DataGenerator.gen_compensator_de(self.fin_model.rates, self.fin_model.eta1s,
-                                                           self.fin_model.eta2s, self.fin_model.probs)
 
         #Initial stock value
         s = torch.ones(self.batch_size, self.dimension)*self.fin_model.s0
