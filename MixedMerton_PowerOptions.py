@@ -13,8 +13,6 @@ importlib.reload(DataGenerator)
 importlib.reload(Plots)
 
 #######################################
-#Here you can set desired financial and machine learning parameters in dictionaries
-#######################################
 # Financial model parameters
 
 financial_parameters = {
@@ -28,7 +26,7 @@ financial_parameters = {
     'rates': [3.0, 5.0, 2.0],            # Rates for Poisson process
     'mus': [-0.1, -0.1, -0.05],          # Mean log-normal parameters
     'sigmas': [0.05, 0.02, 0.01],        # Standard deviation log-normal parameters
-    'MC_sample_size': 50000,   # Sample size for MC
+    'MC_sample_size': 5000,   # Sample size for MC
     'MC_R': 3000               # Number of time steps for MC
 }
 if len(financial_parameters["rates"])!=len(financial_parameters["mus"]) or len(financial_parameters["rates"])!=len(financial_parameters["sigmas"]):
@@ -47,11 +45,6 @@ ml_parameters = {
 }
 
 #######################################
-
-#Once parameters are set run this file
-
-
-#######################################
 #Creating paths and folders
 #######################################
 
@@ -59,8 +52,6 @@ market_name = "MixedMerton"
 
 current_datetime = datetime.now()
 formatted_datetime = current_datetime.strftime("%Y_%m_%d_%H_%M")
-
-#formatted_datetime = "2023_11_29_12_34"
 
 market_path = market_name+"/"+ formatted_datetime +"/"
 
@@ -74,7 +65,6 @@ if not os.path.exists(graph_path):
 model_path = market_path  + "Model/"
 if not os.path.exists(model_path):
     os.makedirs(model_path)
-
 
 ########################################
 #Merton class
@@ -214,7 +204,6 @@ with torch.no_grad():
     evaluator.eval()
 
 # Make a text file with financial an ML information, training time and evaluated loss
-
 with open(market_path + 'Info.txt', 'w') as file:
     # Write financial_data to the file
     file.write("Financial parameters:\n")
